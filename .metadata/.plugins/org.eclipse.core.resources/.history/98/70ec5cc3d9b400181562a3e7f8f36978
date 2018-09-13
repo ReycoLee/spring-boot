@@ -1,0 +1,5 @@
+package com.tabao.bussiness.service;
+
+public interface SysDicService {
+
+}

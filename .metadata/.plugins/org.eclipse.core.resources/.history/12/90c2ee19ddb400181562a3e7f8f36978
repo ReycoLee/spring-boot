@@ -1,0 +1,18 @@
+package com.tabao.bussiness.controller.sys;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.github.pagehelper.PageInfo;
+import com.tabao.bussiness.model.SysDic;
+import com.tabao.bussiness.service.SysDicService;
+import com.tabao.core.base.BaseController;
+
+@RestController("/sysDic")
+public class SysDicController extends BaseController<SysDic, SysDicService> {
+
+	@GetMapping("/page")
+	public PageInfo<SysDic> page(SysDic sysDic) {
+		return getService().queryPageInfo(sysDic);
+	}
+}

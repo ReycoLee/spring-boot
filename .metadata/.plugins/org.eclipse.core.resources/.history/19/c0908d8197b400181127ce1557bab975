@@ -1,0 +1,8 @@
+package com.tabao.bussiness.mapper;
+
+import com.tabao.bussiness.model.SysUser;
+import java.util.List;
+
+public interface SysUserMapper {
+	
+}

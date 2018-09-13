@@ -1,0 +1,5 @@
+package com.tabao.core.utils;
+
+public class Student {
+
+}

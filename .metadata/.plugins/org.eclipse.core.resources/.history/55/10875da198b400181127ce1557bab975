@@ -1,0 +1,9 @@
+package com.tabao.bussiness.mapper;
+
+import com.tabao.bussiness.model.SysUser;
+import com.tabao.core.base.dao.BaseDao;
+import java.util.List;
+
+public interface SysUserMapper extends BaseDao<SysUser> {
+
+}

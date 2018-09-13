@@ -1,0 +1,18 @@
+package com.tabao.core.base.service;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+
+import com.tabao.core.base.model.BaseModel;
+
+/**
+ * 
+ * @author liqiang
+ * @date 2019-09-07
+ * @param <T>
+ */
+@Service
+@EnableTransactionManagement
+public interface BaseService<T extends BaseModel> {
+
+}

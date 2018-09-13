@@ -1,0 +1,8 @@
+package com.tabao.core.base;
+
+import com.tabao.core.base.model.BaseModel;
+import com.tabao.core.base.service.BaseService;
+
+public abstract class BaseController<T extends BaseModel, S extends BaseService<T>> {
+	
+}

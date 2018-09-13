@@ -1,0 +1,214 @@
+package com.tabao.core.base.service.impl;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.tabao.core.base.dao.BaseDao;
+import com.tabao.core.base.model.BaseModel;
+import com.tabao.core.base.model.ResultMap;
+import com.tabao.core.base.service.BaseService;
+import com.tabao.core.consts.CommonConst;
+import com.tabao.core.utils.Reflections;
+
+import tk.mybatis.mapper.common.Mapper;
+import tk.mybatis.mapper.entity.Example;
+import tk.mybatis.mapper.entity.Example.Criteria;
+
+/**
+ * 
+ * @author Administrator
+ * @date 2018-09-07
+ * @param <T>
+ * @param <D>
+ */
+public class BaseServiceImpl<T extends BaseModel, D extends BaseDao<T>> implements BaseService<T> {
+	
+	@Autowired
+    private D baseDao;
+
+    @Autowired
+    protected Mapper<T> mapper;
+
+    @Autowired
+    protected SqlSessionFactory sqlSessionFactory;
+    
+    public Mapper<T> getMapper()
+    {
+        return mapper;
+    }
+
+    public SqlSessionFactory getSqlSessionFactory()
+    {
+        return sqlSessionFactory;
+    }
+
+    public void setSqlSessionFactory(SqlSessionFactory sqlSessionFactory)
+    {
+        this.sqlSessionFactory = sqlSessionFactory;
+    }
+
+	@Override
+	public T selectByKey(Object key) {
+		return mapper.selectByPrimaryKey(key);
+	}
+
+	@Override
+	public ResultMap save(T entity) {
+		Reflections.invokeSetter(entity, "isDeleted", "0");
+		Reflections.invokeSetter(entity, "cre_user", "admin");
+		Reflections.invokeSetter(entity, "cre_time", new Date());
+		Reflections.invokeSetter(entity, "update_user", "admin");
+		Reflections.invokeSetter(entity, "update_time", new Date());
+        int addCount = mapper.insert(entity);
+        if(addCount != 1) {
+        	return ResultMap.error("新增失败");
+        }
+		return ResultMap.success("新增成功");
+	}
+	
+	
+	private String getUserInfo() {
+		// TODO 待从session中获取真正的userInfo
+		return "admin";
+	}
+
+	@Override
+	public int delete(Object key)
+    {
+        return mapper.deleteByPrimaryKey(key);
+    }
+
+    public int deleteAll(String[] ids)
+    {
+        int optRows = 0;
+        for (int i = 0; i < ids.length; i++)
+        {
+            optRows += mapper.deleteByPrimaryKey(ids[i]);
+        }
+        return optRows;
+    }
+
+    public ResultMap updateAll(T entity)
+    {
+		Reflections.invokeSetter(entity, "update_user", "admin");
+		Reflections.invokeSetter(entity, "update_time", new Date());
+        return mapper.updateByPrimaryKey(entity);
+    }
+
+    public ResultMap updateNotNull(T entity)
+    {
+		Reflections.invokeSetter(entity, "update_user", "admin");
+		Reflections.invokeSetter(entity, "update_time", new Date());
+        int updateCount = mapper.updateByPrimaryKeySelective(entity);
+        if(updateCount != 1) {
+        	return ResultMap.error("操作失败");
+        }
+		return ResultMap.success("操作成功");
+    }
+
+    public int selectCount(T entity)
+    {
+        return mapper.selectCount(entity);
+    }
+
+    public List<T> selectAll()
+    {
+        return mapper.selectAll();
+    }
+    
+    public List<T> queryList(T entity) {
+    	return mapper.select(entity);
+    }
+
+    public void saveAll(List<T> list)
+    {
+    	Date now = new Date();
+        for (T entity : list)
+        {
+    		Reflections.invokeSetter(entity, "update_user", "admin");
+    		Reflections.invokeSetter(entity, "update_time", now);
+            getMapper().insert(entity);
+        }
+    }
+
+    public List<T> queryPageList(T entity, int pageSize, int pageNum)
+    {
+        PageHelper.startPage(pageNum, pageSize);
+        List<T> pageList = getMapper().select(entity);
+        return pageList;
+    }
+
+    public List<T> queryEntityList(T entity)
+    {
+        PageHelper.startPage(entity.getPageNum(), entity.getPageSize());
+        List<T> pageList = getMapper().select(entity);
+        return pageList;
+
+    }
+
+    public PageInfo<T> queryPageInfo(T entity, int pageSize, int pageNum)
+    {
+        PageHelper.startPage(pageNum, pageSize);
+        List<T> pageList = getMapper().select(entity);
+        PageInfo<T> pageInfo = new PageInfo<T>(pageList);
+        return pageInfo;
+    }
+
+    public PageInfo<T> queryPageInfo(T entity)
+    {
+    	PageHelper.startPage(entity.getPageNum(), entity.getPageSize());
+        List<T> pageList = getMapper().select(entity);
+        PageInfo<T> pageInfo = new PageInfo<T>(pageList);
+        return pageInfo;
+    }
+
+    protected final SqlSession getSqlSession()
+    {
+        return this.sqlSessionFactory.openSession();
+    }
+
+    public D getBaseDao()
+    {
+        return baseDao;
+    }
+
+    public void setBaseDao(D baseDao)
+    {
+        this.baseDao = baseDao;
+    }
+
+    public void setMapper(Mapper<T> mapper)
+    {
+        this.mapper = mapper;
+    }
+
+	@Override
+	public ResultMap logicDelete(Object key) {
+		T t = selectByKey(key);
+		if(t == null) {
+			return ResultMap.error("该字典不存在");
+		}
+		Reflections.invokeSetter(t, "update_user", "admin");
+		Reflections.invokeSetter(t, "update_time", new Date());
+		Reflections.invokeSetter(t, "isDeleted", CommonConst.NO);
+		return updateNotNull(t);
+	}
+
+	@Override
+	public ResultMap logicDeleteAll(String[] ids) throws Exception {
+        for (String id : ids)
+        {
+            if(!CommonConst.HTTP_CODE_SUCCESS.equals(logicDelete(id).getCode())) {
+            	throw new Exception("删除主键为" + id + "的数据失败");
+            }
+        }
+        return ResultMap.success("删除成功!");
+	}
+}

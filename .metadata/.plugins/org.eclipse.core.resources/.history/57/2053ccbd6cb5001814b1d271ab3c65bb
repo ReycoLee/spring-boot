@@ -1,0 +1,18 @@
+package com.tabao.bussiness.controller.sys;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.github.pagehelper.PageInfo;
+import com.tabao.bussiness.model.Demo;
+import com.tabao.bussiness.service.DemoService;
+import com.tabao.core.base.BaseController;
+
+@RestController
+public class DemoController extends BaseController<Demo, DemoService>{
+	
+	@GetMapping("/page")
+	public PageInfo<Demo> page() {
+		return getService().queryPageInfo(new Demo());
+	}
+}

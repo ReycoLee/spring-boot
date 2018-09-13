@@ -1,0 +1,9 @@
+package com.tabao.bussiness.controller.sys;
+
+import com.tabao.bussiness.model.SysDic;
+import com.tabao.bussiness.service.SysDicService;
+import com.tabao.core.base.BaseController;
+
+public class SysDicController extends BaseController<SysDic, SysDicService> {
+
+}

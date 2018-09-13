@@ -1,0 +1,5 @@
+com\tabao\TabaoApplication.class
+com\tabao\bussiness\controller\sys\SysDicController.class
+com\tabao\bussiness\controller\index\IndeController.class
+com\tabao\bussiness\controller\sys\SysEntryController.class
+com\tabao\core\base\BaseController.class

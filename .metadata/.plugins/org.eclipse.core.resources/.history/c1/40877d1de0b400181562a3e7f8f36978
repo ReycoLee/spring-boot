@@ -1,0 +1,9 @@
+package com.tabao.bussiness.service.impl;
+
+import com.tabao.bussiness.mapper.SysDicMapper;
+import com.tabao.bussiness.model.SysDic;
+import com.tabao.core.base.service.impl.BaseServiceImpl;
+
+public class SysDicServiceImpl extends BaseServiceImpl<SysDic, SysDicMapper> {
+
+}

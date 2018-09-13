@@ -1,0 +1,52 @@
+/**
+ * @(#)CreatorSystemId.java 1.0 2016年11月30日
+ * @Copyright: Copyright 2010 - 2015 ISoftstone Co. Ltd. All Rights Reserved.
+ * @Modification History:
+ * @version: UOMP 1.0
+ * @Date: 2016年11月30日
+ * @Description: (Initialize)
+ * @Reviewer:
+ * @Review Date:
+ */
+package com.tabao.core.utils;
+
+import java.util.UUID;
+
+/**
+ * 系统数据表主键id生成器
+ * 
+ * @author zhangz 48505
+ */
+public class CreatorSystemId
+{
+
+    /**
+     * uuid生成id
+     * 
+     * @return remark
+     */
+    public static String uuid()
+    {
+        return UUID.randomUUID().toString().replaceAll("-", "");
+    }
+
+    /**
+     * 自增id
+     * 
+     * @return remark
+     */
+    public static String identity()
+    {
+        return null;
+    }
+
+    /**
+     * 
+     * Description remark
+     */
+    public void test()
+    {
+
+    }
+
+}

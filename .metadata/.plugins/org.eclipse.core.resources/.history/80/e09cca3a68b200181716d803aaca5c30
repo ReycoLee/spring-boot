@@ -1,0 +1,5 @@
+package com.tabao.core.base;
+
+public abstract class BaseController {
+
+}

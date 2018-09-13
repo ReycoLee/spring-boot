@@ -1,0 +1,19 @@
+1536542034091	Delete element
+1536542038800	Delete element
+1536542128426	Move compilation unit
+1536542132315	Delete element
+1536542150648	Move 'menu.xml' to 'mappers'
+1536542154754	Delete element
+1536542184021	Rename type 'DemoDao'
+1536542208696	Rename resource 'menu.xml'
+1536542336561	Delete element
+1536542340994	Delete element
+1536542344145	Delete element
+1536542588473	Delete element
+1536542593137	Delete element
+1536542598111	Delete element
+1536624425029	Extract local variable 'entryList'
+1536648007220	Extract local variable 'count'
+1536648510468	Delete element
+1536648515965	Delete element
+1536649334462	Extract local variable 'entryList'

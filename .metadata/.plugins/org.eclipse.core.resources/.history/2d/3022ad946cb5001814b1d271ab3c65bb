@@ -1,0 +1,10 @@
+package com.tabao.bussiness.service.impl;
+
+import com.tabao.bussiness.mapper.SysEntryMapper;
+import com.tabao.bussiness.model.SysEntry;
+import com.tabao.bussiness.service.SysEntryService;
+import com.tabao.core.base.service.impl.BaseServiceImpl;
+
+public class SysEntryServiceImpl extends BaseServiceImpl<SysEntry, SysEntryMapper> implements SysEntryService {
+
+}

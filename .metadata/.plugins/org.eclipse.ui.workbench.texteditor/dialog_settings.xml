@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section name="Workbench">
+	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
+		<item value="false" key="isRegEx"/>
+		<item value="modTime" key="selection"/>
+		<item value="false" key="casesensitive"/>
+		<item value="false" key="incremental"/>
+		<item value="true" key="wrap"/>
+		<item value="false" key="wholeword"/>
+		<list key="findhistory">
+			<item value="updateTime"/>
+			<item value="updateUser"/>
+			<item value="update_time"/>
+			<item value="update_user"/>
+			<item value="cre_time"/>
+			<item value="cre_user"/>
+			<item value="&quot;admin&quot;"/>
+			<item value="logicDeleteAll"/>
+			<item value="updateNotNull"/>
+			<item value="security"/>
+			<item value="spring-security"/>
+			<item value="spring-boot-maven"/>
+			<item value="maven"/>
+			<item value="springboot-maven"/>
+			<item value="selectByExample"/>
+		</list>
+		<list key="replacehistory">
+			<item value="modTime"/>
+			<item value="modUser"/>
+			<item value="updateTime"/>
+			<item value="updateUser"/>
+			<item value="creTime"/>
+			<item value="creUser"/>
+			<item value="getUserInfo()"/>
+			<item value="notBlank"/>
+		</list>
+	</section>
+	<section name="org.eclipse.ui.texteditor.FindReplaceDialog_dialogBounds">
+		<item value="300" key="DIALOG_WIDTH"/>
+		<item value="1|微软雅黑|9.0|0|WINDOWS|1|-12|0|0|0|400|0|0|0|1|0|0|0|0|微软雅黑" key="DIALOG_FONT_NAME"/>
+		<item value="409" key="DIALOG_HEIGHT"/>
+		<item value="1410" key="DIALOG_X_ORIGIN"/>
+		<item value="237" key="DIALOG_Y_ORIGIN"/>
+	</section>
+</section>

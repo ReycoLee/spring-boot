@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.tabao</groupId>
+    <artifactId>tabao</artifactId>
+    <version>1.0.0</version>
+  </parent>
+  <artifactId>tabao-sys</artifactId>
+  <name>tabao-sys</name>
+  <url>http://maven.apache.org</url>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+  <dependencies>
+    <dependency>
+		<groupId>com.tabao</groupId>
+ 			<artifactId>tabao-core</artifactId>
+ 			<version>${tabao-core}</version>
+ 			<scope>system</scope>
+ 			<systemPath>E:\apache-maven-3.5.2\m2\repository\com\tabao\tabao-core\1.0.0\tabao-core-1.0.0.jar</systemPath>
+	</dependency>
+  </dependencies>
+</project>

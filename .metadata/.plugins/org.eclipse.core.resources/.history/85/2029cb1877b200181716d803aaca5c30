@@ -1,0 +1,16 @@
+package com.tabao.core.base;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.tabao.core.base.model.BaseModel;
+import com.tabao.core.base.service.BaseService;
+
+public abstract class BaseController<T extends BaseModel, S extends BaseService<T>> {
+	
+	public static Logger logger = LoggerFactory.getLogger(BaseController.class);
+	
+	/*public HttpServletRequest getRequest() {
+		
+	}*/
+}

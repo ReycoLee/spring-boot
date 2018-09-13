@@ -1,0 +1,7 @@
+package com.tabao.bussiness.mapper;
+
+import com.tabao.core.base.dao.BaseDao;
+
+public interface SysEntryMapper extends BaseDao {
+    
+}

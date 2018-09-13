@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>com.tabao</groupId>
+	<artifactId>tabao</artifactId>
+	<version>1.0.0</version>
+	<packaging>pom</packaging>
+
+	<name>tabao</name>
+	<description>tabao Intelligence</description>
+
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.0.4.RELEASE</version>
+		<relativePath /> <!-- lookup parent from repository -->
+	</parent>
+
+	<properties>
+		<start-class>com.tabao.TabaoApplication</start-class>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<java.version>1.8</java.version>
+		<org.mybatis.spring.boot>1.3.2</org.mybatis.spring.boot>
+		<org.apache.poi>3.17</org.apache.poi>
+		<com.alibaba>1.2.49</com.alibaba>
+		<commons-beanutils>1.9.3</commons-beanutils>
+		<druid-spring-boot-starter>1.1.10</druid-spring-boot-starter>
+		<tabao-core>1.0.0</tabao-core>
+		<mapper-spring-boot-starter>2.0.3</mapper-spring-boot-starter>
+		<pagehelper-spring-boot-starter>1.2.5</pagehelper-spring-boot-starter>
+	</properties>
+
+	<repositories>
+		<!-- 阿里云Maven私服 -->
+		<repository>
+			<id>aliyun</id>
+			<name>aliyun</name>
+			<url>http://maven.aliyun.com/nexus/content/groups/public/</url>
+		</repository>
+		<!-- 中心库，地址1 -->
+		<repository>
+			<id>central-repos1</id>
+			<name>Central Repository</name>
+			<url>http://repo2.maven.apache.org/maven2</url>
+		</repository>
+
+		<!-- 中心库，地址2 -->
+		<repository>
+			<id>central-repos2</id>
+			<name>Central Repository</name>
+			<url>http://repo.maven.apache.org/maven2</url>
+		</repository>
+
+		<!-- 中心库，地址3 -->
+		<repository>
+			<id>central-repos3</id>
+			<name>Central Repository</name>
+			<url>http://repo1.maven.org/maven2/</url>
+		</repository>
+
+		<!-- 中心库，地址4 -->
+		<repository>
+			<id>central-repos4</id>
+			<name>Central Repository</name>
+			<url>http://repo2.maven.org/maven2/</url>
+		</repository>
+
+		<!-- java库 -->
+		<repository>
+			<id>java-repos</id>
+			<name>Java Repository</name>
+			<url>http://download.java.net/maven/2/</url>
+		</repository>
+
+		<!-- Spring库 -->
+		<repository>
+			<id>springsource-repos</id>
+			<name>SpringSource Repository</name>
+			<url>http://repo.spring.io/release/</url>
+		</repository>
+	</repositories>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.doxia</groupId>
+				<artifactId>doxia-site-renderer</artifactId>
+				<version>1.8</version>
+			</plugin>
+		</plugins>
+	</build>
+	<modules>
+		<module>taobao-web</module>
+		<module>tabao-core</module>
+		<module>tabao-cas</module>
+		<module>tabao-sys</module>
+	</modules>
+</project>

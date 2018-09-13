@@ -1,0 +1,6 @@
+package com.tabao.core.base;
+
+@EnableTransactionManagement
+public abstract class BaseService {
+
+}

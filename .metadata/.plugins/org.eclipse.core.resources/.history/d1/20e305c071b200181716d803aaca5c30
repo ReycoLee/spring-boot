@@ -1,0 +1,84 @@
+package com.tabao.core.base.service;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+
+import com.github.pagehelper.PageInfo;
+import com.tabao.core.base.model.BaseModel;
+
+/**
+ * 
+ * @author liqiang
+ * @date 2019-09-07
+ * @param <T>
+ */
+@Service
+@EnableTransactionManagement
+public interface BaseService<T extends BaseModel> {
+	
+	/**
+	 * 根据主键进行查询
+	 * @param key
+	 * @return
+	 */
+	T selectByKey(Object key);
+
+	/**
+	 * 保存单条数据
+	 * @param entity
+	 * @return
+	 */
+    int save(T entity);
+
+    /**
+     * 保存多条数据
+     * @param list
+     */
+    void saveAll(List<T> list);
+
+    /**
+     * 物理删除单条数据(慎用)
+     * @param key
+     * @return
+     */
+    int delete(Object key);
+    
+    /**
+     * 逻辑删除单条数据
+     * @return
+     */
+    int logicDelete();
+
+    /**
+     * 物理删除多条数据(慎用)
+     * @param key
+     * @return
+     */
+    int deleteAll(String[] ids);
+    
+    /**
+     * 逻辑删除多条数据
+     * @return
+     */
+    int logicDeleteAll();
+
+    int updateAll(T entity);
+
+    int updateNotNull(T entity);
+
+    int selectCount(T entity);
+
+    List<T> selectByExample(T entity);
+
+    List<T> selectAll();
+
+    List<T> queryPageList(T entity, int pageSize, int pageNum);
+
+    public List<T> queryEntityList(T entity);
+
+    public PageInfo<T> queryPageInfo(T entity, int pageSize, int pageNum);
+
+    public PageInfo<T> queryPageInfo(T entity);
+}

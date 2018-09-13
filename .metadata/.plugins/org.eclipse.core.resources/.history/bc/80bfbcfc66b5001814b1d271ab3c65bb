@@ -1,0 +1,5 @@
+package com.tabao.bussiness.controller.sys;
+
+public class SysEntryController {
+
+}

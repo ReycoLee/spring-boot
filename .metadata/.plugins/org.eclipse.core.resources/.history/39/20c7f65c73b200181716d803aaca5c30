@@ -1,0 +1,194 @@
+package com.tabao.core.base.service.impl;
+
+import java.util.List;
+import java.util.Map;
+
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.tabao.core.base.dao.BaseDao;
+import com.tabao.core.base.model.BaseModel;
+import com.tabao.core.base.service.BaseService;
+import com.tabao.core.consts.CommonConst;
+import com.tabao.core.utils.Reflections;
+
+import tk.mybatis.mapper.common.Mapper;
+import tk.mybatis.mapper.entity.Example;
+import tk.mybatis.mapper.entity.Example.Criteria;
+
+public class BaseServiceImpl<T extends BaseModel, D extends BaseDao<T>> implements BaseService<T> {
+	
+	@Autowired
+    private D baseDao;
+
+    @Autowired
+    protected Mapper<T> mapper;
+
+    @Autowired
+    protected SqlSessionFactory sqlSessionFactory;
+    
+    public Mapper<T> getMapper()
+    {
+        return mapper;
+    }
+
+    public SqlSessionFactory getSqlSessionFactory()
+    {
+        return sqlSessionFactory;
+    }
+
+    public void setSqlSessionFactory(SqlSessionFactory sqlSessionFactory)
+    {
+        this.sqlSessionFactory = sqlSessionFactory;
+    }
+
+	@Override
+	public T selectByKey(Object key) {
+		return mapper.selectByPrimaryKey(key);
+	}
+
+	@Override
+	public int save(T entity) {
+		/*int result = 0;
+        if (entity instanceof GenerateIdModel)
+        {
+            String rowid = ((GenerateIdModel) entity).getId();
+            if (rowid != null && !rowid.equals(""))
+            {
+                result = mapper.updateByPrimaryKeySelective((T)entity);
+            }
+            else
+            {
+                result = mapper.insert((T)entity);
+            }
+        }*/
+        return mapper.insert(entity);
+	}
+
+	@Override
+	public int delete(Object key)
+    {
+        return mapper.deleteByPrimaryKey(key);
+    }
+
+    public int deleteAll(String[] ids)
+    {
+        int optRows = 0;
+        for (int i = 0; i < ids.length; i++)
+        {
+            optRows += mapper.deleteByPrimaryKey(ids[i]);
+        }
+        return optRows;
+    }
+
+    public int updateAll(T entity)
+    {
+        return mapper.updateByPrimaryKey(entity);
+    }
+
+    public int updateNotNull(T entity)
+    {
+        return mapper.updateByPrimaryKeySelective(entity);
+    }
+
+    public int selectCount(T entity)
+    {
+        return mapper.selectCount(entity);
+    }
+
+    public List<T> selectByExample(T entity)
+    {
+        return mapper.select(entity);
+    }
+
+    public List<T> selectAll()
+    {
+        return mapper.selectAll();
+    }
+
+    public void saveAll(List<T> list)
+    {
+        for (T entity : list)
+        {
+            getMapper().insert(entity);
+        }
+    }
+
+    public List<T> queryPageList(T entity, int pageSize, int pageNum)
+    {
+        PageHelper.startPage(pageNum, pageSize);
+        List<T> pageList = getMapper().select(entity);
+        return pageList;
+    }
+
+    public List<T> queryEntityList(T entity)
+    {
+        PageHelper.startPage(entity.getPageNum(), entity.getPageSize());
+        List<T> pageList = getMapper().select(entity);
+        return pageList;
+
+    }
+
+    public PageInfo<T> queryPageInfo(T entity, int pageSize, int pageNum)
+    {
+        PageHelper.startPage(pageNum, pageSize);
+        List<T> pageList = getMapper().select(entity);
+        PageInfo<T> pageInfo = new PageInfo<T>(pageList);
+        return pageInfo;
+    }
+
+    public PageInfo<T> queryPageInfo(T entity)
+    {
+        Example example = new Example(entity.getClass());
+        Criteria criteria = example.createCriteria();
+        List<Map<String, Object>> fileInfo = Reflections.getFiledsInfo(entity, false);
+        for (Map<String, Object> map : fileInfo)
+        {
+            criteria.andLike(map.get("name") + "", "%" + map.get("value") + "%");
+        }
+        PageHelper.startPage(entity.getPageNum(), entity.getPageSize());
+        List<T> pageList = getBaseDao().selectByExample(example);
+        PageInfo<T> pageInfo = new PageInfo<T>(pageList);
+        return pageInfo;
+
+    }
+
+    protected final SqlSession getSqlSession()
+    {
+        return this.sqlSessionFactory.openSession();
+    }
+
+    public D getBaseDao()
+    {
+        return baseDao;
+    }
+
+    public void setBaseDao(D baseDao)
+    {
+        this.baseDao = baseDao;
+    }
+
+    public void setMapper(Mapper<T> mapper)
+    {
+        this.mapper = mapper;
+    }
+
+	@Override
+	public int logicDelete(Object key) {
+		T t = selectByKey(key);
+		if(t == null) {
+			return 0;
+		}
+		Reflections.invokeSetter(t, "isDeleted", CommonConst.NO);
+		return 0;
+	}
+
+	@Override
+	public int logicDeleteAll(String[] ids) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+}

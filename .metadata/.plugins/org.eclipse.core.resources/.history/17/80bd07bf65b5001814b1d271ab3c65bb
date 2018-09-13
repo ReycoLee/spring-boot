@@ -1,0 +1,148 @@
+package com.tabao.core.base.service;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+
+import com.github.pagehelper.PageInfo;
+import com.tabao.core.base.model.BaseModel;
+import com.tabao.core.base.model.ResultMap;
+
+/**
+ * 
+ * @author liqiang
+ * @date 2019-09-07
+ * @param <T>
+ */
+@Service
+@EnableTransactionManagement
+public interface BaseService<T extends BaseModel> {
+
+	/**
+	 * 根据主键进行查询
+	 * 
+	 * @param key
+	 * @return
+	 */
+	T selectByKey(Object key);
+
+	/**
+	 * 保存单条数据
+	 * 
+	 * @param entity
+	 * @return
+	 */
+	ResultMap save(T entity);
+
+	/**
+	 * 保存多条数据
+	 * 
+	 * @param list
+	 */
+	ResultMap saveAll(List<T> list);
+
+	/**
+	 * 物理删除单条数据(慎用)
+	 * 
+	 * @param key
+	 * @return
+	 */
+	int delete(Object key);
+
+	/**
+	 * 逻辑删除单条数据
+	 * 
+	 * @return
+	 */
+	ResultMap logicDelete(Object key);
+
+	/**
+	 * 物理删除多条数据(慎用)
+	 * 
+	 * @param key
+	 * @return
+	 */
+	int deleteAll(String[] ids);
+
+	/**
+	 * 逻辑删除多条数据
+	 * 
+	 * @return
+	 */
+	ResultMap logicDeleteAll(String[] ids) throws Exception;
+
+	/**
+	 * 更新所有字段
+	 * 
+	 * @param entity
+	 * @return
+	 */
+	ResultMap updateAll(T entity);
+
+	/**
+	 * 更新非空字段
+	 * 
+	 * @param entity
+	 * @return
+	 */
+	ResultMap updateNotNull(T entity);
+
+	/**
+	 * 查询数量
+	 * 
+	 * @param entity
+	 * @return
+	 */
+	int selectCount(T entity);
+
+	/**
+	 * 查询所有
+	 * 
+	 * @return
+	 */
+	List<T> selectAll();
+	
+	/**
+	 * 查询列表
+	 * @param entity
+	 * @return
+	 */
+	List<T> queryList(T entity);
+
+	/**
+	 * 分页查询返回list
+	 * 
+	 * @param entity
+	 * @param pageSize
+	 * @param pageNum
+	 * @return
+	 */
+	List<T> queryPageList(T entity, int pageSize, int pageNum);
+
+	/**
+	 * 根据实体中的属性值进行查询，查询条件使用等号
+	 * 
+	 * @param entity
+	 * @return
+	 */
+	public List<T> queryEntityList(T entity);
+
+	/**
+	 * 分页查询返回pageInfo
+	 * 
+	 * @param entity
+	 * @param pageSize
+	 * @param pageNum
+	 * @return
+	 */
+	public PageInfo<T> queryPageInfo(T entity, int pageSize, int pageNum);
+
+	/**
+	 * 分页查询返回pageInfo(pageNo默认1，pageSize默认10)
+	 * 
+	 * @param entity
+	 * @return
+	 */
+	public PageInfo<T> queryPageInfo(T entity);
+}

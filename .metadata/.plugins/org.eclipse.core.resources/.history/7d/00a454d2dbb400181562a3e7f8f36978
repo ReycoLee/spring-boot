@@ -1,0 +1,46 @@
+package com.tabao.core.base.model;
+
+import java.io.Serializable;
+
+public class ResultMap implements Serializable {
+
+	private static final long serialVersionUID = -2026823196318283343L;
+
+	private boolean state; // JSON返回状态 true 成功，false 失败
+    private String msg; // JSON返回消息
+    private String code;//返回状态码
+    private Object extension;//扩展字段
+    private Object obj; // 返回对象
+    
+	public boolean isState() {
+		return state;
+	}
+	public void setState(boolean state) {
+		this.state = state;
+	}
+	public String getMsg() {
+		return msg;
+	}
+	public void setMsg(String msg) {
+		this.msg = msg;
+	}
+	public String getCode() {
+		return code;
+	}
+	public void setCode(String code) {
+		this.code = code;
+	}
+	public Object getExtension() {
+		return extension;
+	}
+	public void setExtension(Object extension) {
+		this.extension = extension;
+	}
+	public Object getObj() {
+		return obj;
+	}
+	public void setObj(Object obj) {
+		this.obj = obj;
+	}
+    
+}

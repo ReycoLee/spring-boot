@@ -1,0 +1,48 @@
+package com.tabao.core.base.service;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+
+import com.github.pagehelper.PageInfo;
+import com.tabao.core.base.model.BaseModel;
+
+/**
+ * 
+ * @author liqiang
+ * @date 2019-09-07
+ * @param <T>
+ */
+@Service
+@EnableTransactionManagement
+public interface BaseService<T extends BaseModel> {
+	
+	T selectByKey(Object key);
+
+    int save(T entity);
+
+    void saveAll(List<T> list);
+
+    int delete(Object key);
+
+    int deleteAll(String[] ids);
+
+    int updateAll(T entity);
+
+    int updateNotNull(T entity);
+
+    int selectCount(T entity);
+
+    List<T> selectByExample(T entity);
+
+    List<T> selectAll();
+
+    List<T> queryPageList(T entity, int pageSize, int pageNum);
+
+    public List<T> queryEntityList(T entity);
+
+    public PageInfo<T> queryPageInfo(T entity, int pageSize, int pageNum);
+
+    public PageInfo<T> queryPageInfo(T entity);
+}

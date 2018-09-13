@@ -1,0 +1,5 @@
+package com.tabao.bussiness.service.impl;
+
+public class SysEntryServiceImpl {
+
+}

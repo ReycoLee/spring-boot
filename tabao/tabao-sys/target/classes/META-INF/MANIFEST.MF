@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Implementation-Title: tabao-sys
+Implementation-Version: 1.0.0
+Built-By: Administrator
+Implementation-Vendor-Id: com.tabao
+Build-Jdk: 1.8.0_72
+Implementation-URL: http://maven.apache.org
+Created-By: Maven Integration for Eclipse
+Main-Class: com.tabao.TabaoApplication
+

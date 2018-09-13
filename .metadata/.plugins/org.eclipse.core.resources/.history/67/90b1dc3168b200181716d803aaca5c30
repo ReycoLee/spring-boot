@@ -1,0 +1,8 @@
+package com.tabao.core.base;
+
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+
+@EnableTransactionManagement
+public abstract class BaseService {
+
+}

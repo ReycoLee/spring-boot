@@ -1,0 +1,8 @@
+package com.tabao.bussiness.dao;
+
+import com.tabao.bussiness.model.Demo;
+import com.tabao.core.base.dao.BaseDao;
+
+public interface DemoDao extends BaseDao<Demo> {
+	
+}

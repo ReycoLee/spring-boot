@@ -1,0 +1,10 @@
+package com.tabao.bussiness.mapper;
+
+import com.tabao.bussiness.model.SysEntry;
+import com.tabao.core.base.dao.BaseDao;
+import java.util.List;
+import org.apache.ibatis.annotations.Param;
+
+public interface SysEntryMapper extends BaseDao {
+    
+}

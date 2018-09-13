@@ -1,0 +1,19 @@
+package com.tabao.core.base.model;
+
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+
+public class GenerateIdModel extends BaseModel {
+
+	@Id
+	@GeneratedValue(generator="UUID")
+	private String id;
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+}

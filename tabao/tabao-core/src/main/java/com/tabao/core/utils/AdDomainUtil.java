@@ -1,0 +1,698 @@
+/**
+ * @(#)AdDomain.java 1.0 2017年10月25日
+ * @Copyright: Copyright 2010 - 2017 ISoftstone Co. Ltd. All Rights Reserved.
+ * @Modification History:
+ * @version: PROJNAME 1.0
+ * @Date: 2017年10月25日
+ * @Description: (Initialize)
+ * @Reviewer:
+ * @Review Date:
+ */
+package com.tabao.core.utils;
+
+import java.util.Date;
+import java.util.Hashtable;
+
+import javax.naming.AuthenticationException;
+import javax.naming.CommunicationException;
+import javax.naming.Context;
+import javax.naming.NameAlreadyBoundException;
+import javax.naming.NameNotFoundException;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.NoPermissionException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
+import javax.naming.ldap.InitialLdapContext;
+import javax.naming.ldap.LdapContext;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * Description
+ * 
+ * @author xuxiaohu
+ */
+public class AdDomainUtil
+{
+
+    private static Logger logger = LoggerFactory.getLogger(AdDomainUtil.class);
+    
+    /**
+     * 密码策略错误
+     */
+    public static final int PWD_LENGTH_STRATEGY = -2;
+    /**
+     * AD域信息配置错误，请检查相关配置
+     */
+    public static final int CODE_WRONG_SETTINGS = -1;
+    /**
+     * 操作成功
+     */
+    public static final int CODE_SUCCESS = 0;
+    /**
+     * 域用户已存在
+     */
+    public static final int CODE_EXIST = 1;
+    /**
+     * 域用户不存在
+     */
+    public static final int CODE_NOTFOUND = 2;
+    /**
+     * 认证失败，无法操作
+     */
+    public static final int CODE_AUTHENTICATION_FAILED = 3;
+    /**
+     * 连接失败
+     */
+    public static final int CODE_CONNECTION_FAILED = 4;
+    /**
+     * 无权增加用户
+     */
+    public static final int CODE_NO_PROMISSION = 5;
+    /**
+     * 参数策略错误
+     */
+    public static final int PARA_LENGTH_STRATEGY = 6;
+    /**
+     * 发生其他异常
+     */
+    public static final int CODE_EXCEPTION = 9;
+
+    /**
+     * 添加一个AD域帐号
+     * 
+     * @param ouName 部门名称
+     * @param username 用户名
+     * @param password 密码
+     * @param name 姓名
+     * @param mail 邮箱
+     * @param tel 电话
+     * @param resignationDate 离职日期
+     * @return
+     */
+    public static int addAccount(String ouName, String username, String password, String name, String mail, String tel,
+            Date resignationDate, Boolean enabled)
+    {
+        int code = CODE_SUCCESS;
+        LdapContext context = getLdapContext();
+        if (context == null)
+        {
+            code = CODE_CONNECTION_FAILED;
+            return code;
+        }
+        if (StringUtils.isBlank(ouName) || StringUtils.isBlank(username))
+        {
+            code = PARA_LENGTH_STRATEGY;
+            return code;
+        }
+        try
+        {
+            Attributes attrs = new BasicAttributes(true);
+            Attribute objclass = new BasicAttribute("objectclass");
+            // 添加ObjectClass
+            objclass.add("user");
+            attrs.put(objclass);
+
+            if (StringUtils.isBlank(name))
+            {
+                name = username;
+            }
+            attrs.put("sn", name);// 姓，AD域有姓和名之分，这里只设置到姓
+            attrs.put("displayName", name);// 显示名
+            if (StringUtils.notBlank(mail))
+            {
+                attrs.put("mail", mail);// email
+            }
+            if (StringUtils.notBlank(tel))
+            {
+                attrs.put("mobile", tel);
+            }
+            if (resignationDate != null)
+            {
+                attrs.put("accountExpires", doAdd(resignationDate.getTime() + "", "11644473600000") + "0000");
+            }
+            if (StringUtils.isBlank(password))
+            {
+                password = SysConst.SYS_DEFALT_PASSWORD;
+            }
+            // 密码需要用引号括起来，并以UTF-16LE编码
+            attrs.put("unicodePwd", ("\"" + password + "\"").getBytes("UTF-16LE"));
+            // 登录用户名(必须加域址)
+            attrs.put("userPrincipalName", username + "@" + SysConfig.getAdDomain()); //AD_DOMAIN
+            attrs.put("sAMAccountName", username);
+
+            if (enabled == null || enabled)
+            {
+                attrs.put("userAccountControl", "512");// 启用：512，禁用：514，
+                                                       // 密码永不过期：66048
+            }
+            else if (enabled != null && !enabled)
+            {
+                attrs.put("userAccountControl", "514");
+            }
+            String dn = "CN=" + username + ",OU=Accounts,OU=" + ouName + "," + SysConfig.getAdCnSuffix(); //CN_SUFFIX
+
+            context.createSubcontext(dn, attrs);
+        }
+        catch (NameAlreadyBoundException e)
+        {
+            e.printStackTrace();
+            code = CODE_EXIST;
+        }
+        catch (NoPermissionException e)
+        {
+            e.printStackTrace();
+            code = CODE_NO_PROMISSION;
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            code = CODE_EXCEPTION;
+        }
+        finally
+        {
+            closeLdapContext(context);
+        }
+        return code;
+
+    }
+
+    /**
+     * 修改一个AD域帐号
+     * 
+     * @param ouName 部门名称(必传)
+     * @param username 用户名(必传)
+     * @param
+     * @param password 密码
+     * @param name 姓名
+     * @param mail 邮箱
+     * @param tel 电话
+     * @param resignationDate 离职日期
+     * @param enabled 启用禁用
+     * @return
+     */
+    public static int modifyAccount(String ouname, String username, String password, String name, String mail,
+            String tel, Date resignationDate, Boolean enabled)
+    {
+        int code = CODE_SUCCESS;
+        LdapContext context = getLdapContext();
+        if (context == null)
+        {
+            code = CODE_CONNECTION_FAILED;
+            return code;
+        }
+        try
+        {
+            Attributes attrs = new BasicAttributes(true);
+            if (StringUtils.notBlank(password))
+            {
+                attrs.put("unicodePwd", ("\"" + password + "\"").getBytes("UTF-16LE"));
+            }
+            if (StringUtils.notBlank(name))
+            {
+                attrs.put("sn", name);
+                attrs.put("displayName", name);
+            }
+            if (StringUtils.notBlank(tel))
+            {
+                attrs.put("mobile", tel);
+            }
+            if (StringUtils.notBlank(mail))
+            {
+                attrs.put("mail", mail);
+            }
+            if (resignationDate != null)
+            {
+                attrs.put("accountExpires", doAdd(resignationDate.getTime() + "", "11644473600000") + "0000");
+            }
+            if (enabled != null && enabled)
+            {
+                attrs.put("userAccountControl", "512");
+            }
+            else if (enabled != null && !enabled)
+            {
+                attrs.put("userAccountControl", "514");
+            }
+
+            String dn = "CN=" + username + ",OU=Accounts,OU=" + ouname + "," + SysConfig.getAdCnSuffix(); //CN_SUFFIX
+
+            context.modifyAttributes(dn, DirContext.REPLACE_ATTRIBUTE, attrs);
+
+        }
+        catch (NameNotFoundException e)
+        {
+            e.printStackTrace();
+            code = CODE_NOTFOUND;
+        }
+        catch (AuthenticationException e)
+        {
+            e.printStackTrace();
+            code = CODE_AUTHENTICATION_FAILED;
+        }
+        catch (NamingException e)
+        {
+            e.printStackTrace();
+            code = CODE_WRONG_SETTINGS;
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            code = CODE_EXCEPTION;
+        }
+        finally
+        {
+            closeLdapContext(context);
+        }
+        return code;
+
+    }
+
+    /**
+     * 判断域用户是否存在（2：不存在，0：存在）
+     * 
+     * @return
+     */
+    public static int searchUser(String userName)
+    {
+        int code = CODE_SUCCESS;
+        LdapContext context = getLdapContext();
+        if (context == null)
+        {
+            code = CODE_CONNECTION_FAILED;
+            return code;
+        }
+        try
+        {
+            String filter = "(&(objectCategory=person)(objectClass=USER)(cn=" + userName + "))";
+            SearchControls controls = new SearchControls();
+            controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+            NamingEnumeration<SearchResult> search = context.search(SysConfig.getAdCnSuffix(), filter, controls); //CN_SUFFIX
+            if (!search.hasMoreElements())
+            {
+                code = CODE_NOTFOUND;
+            }
+        }
+        catch (NameNotFoundException e)
+        {
+            e.printStackTrace();
+            code = CODE_NOTFOUND;
+        }
+        catch (NamingException e)
+        {
+            e.printStackTrace();
+            code = CODE_WRONG_SETTINGS;
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            code = CODE_EXCEPTION;
+        }
+        finally
+        {
+            closeLdapContext(context);
+        }
+        return code;
+
+    }
+
+    /**
+     * 删除节点(节点有数据无法删除)
+     * 
+     * @param username
+     * @return
+     * @throws Exception
+     */
+    public static int deleteAccount(String username, String ouname)
+    {
+        int code = CODE_SUCCESS;
+        LdapContext context = getLdapContext();
+        if (context == null)
+        {
+            code = CODE_CONNECTION_FAILED;
+            return code;
+        }
+        try
+        {
+            if (StringUtils.notBlank(username) && StringUtils.notBlank(ouname))
+            {
+                String dn = "CN=" + username + ",OU=Accounts,OU=" + ouname + "," + SysConfig.getAdCnSuffix();
+                context.destroySubcontext(dn);
+            }
+            else if (StringUtils.notBlank(ouname))
+            {
+                String dnAccounts = "OU=Accounts,OU=" + ouname + "," + SysConfig.getAdCnSuffix();
+                String dnClients = "OU=Clients,OU=" + ouname + "," + SysConfig.getAdCnSuffix();
+                String dn = "OU=" + ouname + "," + SysConfig.getAdCnSuffix();
+                context.destroySubcontext(dnAccounts);
+                context.destroySubcontext(dnClients);
+                context.destroySubcontext(dn);
+            }
+            else
+            {
+                logger.error("掉ad域参数错误");
+            }
+        }
+        catch (NameNotFoundException e)
+        {
+            e.printStackTrace();
+            code = CODE_NOTFOUND;
+        }
+        catch (AuthenticationException e)
+        {
+            e.printStackTrace();
+            code = CODE_AUTHENTICATION_FAILED;
+        }
+        catch (CommunicationException e)
+        {
+            e.printStackTrace();
+            code = CODE_CONNECTION_FAILED;
+        }
+        catch (NoPermissionException e)
+        {
+            e.printStackTrace();
+            code = CODE_NO_PROMISSION;
+        }
+        catch (NamingException e)
+        {
+            e.printStackTrace();
+            code = CODE_WRONG_SETTINGS;
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            code = CODE_EXCEPTION;
+        }
+        finally
+        {
+            closeLdapContext(context);
+        }
+        return code;
+    }
+
+    /**
+     * 固定在商业管理公司下添加部门单位（暂无权限）
+     * 
+     * @param ouname 部门名
+     * @param description 描述
+     * @return
+     */
+    public static int addOu(String ouname, String description)
+    {
+
+        int code = CODE_SUCCESS;
+        LdapContext context = getLdapContext();
+        if (context == null)
+        {
+            code = CODE_CONNECTION_FAILED;
+            return code;
+        }
+        try
+        {
+            Attributes attrs = new BasicAttributes(true);
+            Attribute objclass = new BasicAttribute("objectclass");
+            // 添加ObjectClass
+            objclass.add("top");
+            objclass.add("organizationalUnit");
+            attrs.put(objclass);
+            // 名称
+            // attrs.put("ou", ouname);
+            // 描述
+            attrs.put("description", description);
+
+            String dn = "ou=" + ouname + "," + SysConfig.getAdCnSuffix();
+            // 新建部门 默认组
+            String dnAccounts = "ou=Accounts," + dn;
+            String dnClients = "ou=Clients," + dn;
+
+            context.createSubcontext(dn, attrs);
+            context.createSubcontext(dnAccounts, attrs);
+            context.createSubcontext(dnClients, attrs);
+
+        }
+        catch (NoPermissionException e)
+        {
+            e.printStackTrace();
+            code = CODE_NO_PROMISSION;
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            code = CODE_EXCEPTION;
+        }
+        finally
+        {
+            closeLdapContext(context);
+        }
+        return code;
+    }
+
+    /**
+     * 修改目录属性
+     * 
+     * @param targetDn 目标路径
+     *
+     * @return
+     */
+    public static int updou(String targetDn, String description)
+    {
+
+        int code = CODE_SUCCESS;
+        LdapContext context = getLdapContext();
+        if (context == null)
+        {
+            code = CODE_CONNECTION_FAILED;
+            return code;
+        }
+        try
+        {
+            Attributes attrs = new BasicAttributes(true);
+            attrs.put("description", description);
+            context.modifyAttributes(targetDn + "," + SysConfig.getAdCnSuffix(), DirContext.REPLACE_ATTRIBUTE, attrs);
+        }
+        catch (NameNotFoundException e)
+        {
+            e.printStackTrace();
+            code = CODE_NOTFOUND;
+        }
+        catch (NoPermissionException e)
+        {
+            e.printStackTrace();
+            code = CODE_NO_PROMISSION;
+        }
+        catch (NamingException e)
+        {
+            e.printStackTrace();
+            code = CODE_WRONG_SETTINGS;
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            code = CODE_EXCEPTION;
+        }
+        finally
+        {
+            closeLdapContext(context);
+        }
+        return code;
+
+    }
+
+    /**
+     * 重命名节点
+     * 
+     * @param oldDN
+     * @param newDN
+     * @return
+     */
+    public static int renameEntry(String oldDN, String newDN)
+    {
+
+        int code = CODE_SUCCESS;
+        LdapContext context = getLdapContext();
+        if (context == null)
+        {
+            code = CODE_CONNECTION_FAILED;
+            return code;
+        }
+        try
+        {
+            String oldName = oldDN + "," + SysConfig.getAdCnSuffix();
+            String newName = newDN + "," + SysConfig.getAdCnSuffix();
+            context.rename(oldName, newName);
+        }
+        catch (NameAlreadyBoundException e)
+        {
+            e.printStackTrace();
+            code = CODE_EXIST;
+        }
+        catch (NoPermissionException e)
+        {
+            e.printStackTrace();
+            code = CODE_NO_PROMISSION;
+        }
+        catch (NamingException e)
+        {
+            e.printStackTrace();
+            code = CODE_WRONG_SETTINGS;
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            code = CODE_EXCEPTION;
+        }
+        finally
+        {
+            closeLdapContext(context);
+        }
+        return code;
+    }
+
+    private static LdapContext getLdapContext()
+    {
+        try
+        {
+            //System.setProperty("javax.net.ssl.trustStore", SysConfig.getAdKeyStorefile());
+            //System.setProperty("javax.net.ssl.keyStorePassword", SysConfig.getAdKeyStorepassword());
+            //logger.info(SysConfig.getAdKeyStorefile()+"--"+SysConfig.getAdKeyStorepassword()+"--"+SysConfig.getAdUrls()+"--"+SysConfig.getAdPrincipal()+"--"+SysConfig.getAdCredentials());
+            for (String url : SysConfig.getAdUrls().split(","))
+            {
+                if (StringUtils.notBlank(url))
+                {
+                    Hashtable<Object, Object> env = new Hashtable<>();
+                    env.put(Context.PROVIDER_URL, url);
+                    env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
+                    env.put(Context.SECURITY_AUTHENTICATION, "simple");
+                    env.put(Context.SECURITY_PRINCIPAL, SysConfig.getAdPrincipal()); //AD_PRINCIPAL
+                    env.put(Context.SECURITY_CREDENTIALS, SysConfig.getAdCredentials()); //AD_CREDENTIALS
+                    env.put(Context.SECURITY_PROTOCOL, "ssl");
+                    env.put(Context.REFERRAL,"ignore");
+                    env.put("java.naming.ldap.factory.socket", "com.tabao.core.utils.DummySSLSocketFactory");
+                    try {
+						LdapContext context = new InitialLdapContext(env, null);
+						return context;
+					} catch (Exception e) {
+						logger.error("获取ad连接失败--AD域信息配置错误，请检查相关配置");
+						e.printStackTrace();
+						
+					}
+                }
+            }
+        }
+        /*catch (NamingException e)
+        {
+            logger.error("获取ad连接失败--AD域信息配置错误，请检查相关配置");
+            e.printStackTrace();
+            // code = CODE_WRONG_SETTINGS
+        }*/
+        catch (Exception e)
+        {
+            logger.error("获取ad连接异常");
+            e.printStackTrace();
+            // code = CODE_EXCEPTION;
+        }
+        return null;
+    }
+
+    /**
+     * 关闭连接
+     */
+    private static void closeLdapContext(LdapContext context)
+    {
+        if (context != null)
+        {
+            try
+            {
+                context.close();
+            }
+            catch (NamingException e)
+            {
+                logger.error("关闭ad连接异常");
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private static String doAdd(String a, String b)
+    {
+        String str = "";
+        int lenA = a.length();
+        int lenB = b.length();
+        int maxLen = (lenA > lenB) ? lenA : lenB;
+        int minLen = (lenA < lenB) ? lenA : lenB;
+        String strTmp = "";
+        for (int i = maxLen - minLen; i > 0; i--)
+        {
+            strTmp += "0";
+        }
+        // 把长度调整到相同
+        if (maxLen == lenA)
+        {
+            b = strTmp + b;
+        }
+        else
+        {
+            a = strTmp + a;
+        }
+        int JW = 0;// 进位
+        for (int i = maxLen - 1; i >= 0; i--)
+        {
+            int tempA = Integer.parseInt(String.valueOf(a.charAt(i)));
+            int tempB = Integer.parseInt(String.valueOf(b.charAt(i)));
+            int temp;
+            if (tempA + tempB + JW >= 10 && i != 0)
+            {
+                temp = tempA + tempB + JW - 10;
+                JW = 1;
+            }
+            else
+            {
+                temp = tempA + tempB + JW;
+                JW = 0;
+            }
+            str = String.valueOf(temp) + str;
+        }
+        return str;
+    }
+    
+    public static void main(String[] args)
+    {
+        try
+        {
+            String _url = "ldap://172.30.101.7:389,ldap://172.30.101.7:389";
+            for (String url : _url.split(","))
+            {
+                if (StringUtils.notBlank(url))
+                {
+                    Hashtable<Object, Object> env = new Hashtable<>();
+                    env.put(Context.PROVIDER_URL, url);
+                    env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
+                    env.put(Context.SECURITY_AUTHENTICATION, "simple");
+                    env.put(Context.SECURITY_PRINCIPAL, "DevTest01@sycommercial.com"); //AD_PRINCIPAL
+                    env.put(Context.SECURITY_CREDENTIALS, "65432100"); //AD_CREDENTIALS
+                    //env.put(Context.SECURITY_PROTOCOL, "ssl");
+                    try {
+                        LdapContext context = new InitialLdapContext(env, null);
+                        
+                        
+                        System.out.println(context);
+                    } catch (Exception e) {
+                        logger.error("获取ad连接失败--AD域信息配置错误，请检查相关配置");
+                        e.printStackTrace();
+                        
+                    }
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+}

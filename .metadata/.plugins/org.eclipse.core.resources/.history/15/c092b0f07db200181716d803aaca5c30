@@ -1,0 +1,10 @@
+package com.tabao.bussiness.service.impl;
+
+import com.tabao.bussiness.dao.DemoDao;
+import com.tabao.bussiness.model.Demo;
+import com.tabao.bussiness.service.DemoService;
+import com.tabao.core.base.service.impl.BaseServiceImpl;
+
+public class DemoServiceImpl extends BaseServiceImpl<Demo, DemoDao> implements DemoService {
+
+}

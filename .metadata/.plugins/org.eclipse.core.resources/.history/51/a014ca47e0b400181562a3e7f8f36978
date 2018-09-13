@@ -1,0 +1,12 @@
+package com.tabao.bussiness.service.impl;
+
+import org.springframework.stereotype.Service;
+
+import com.tabao.bussiness.mapper.SysDicMapper;
+import com.tabao.bussiness.model.SysDic;
+import com.tabao.core.base.service.impl.BaseServiceImpl;
+
+@Service
+public class SysDicServiceImpl extends BaseServiceImpl<SysDic, SysDicMapper> {
+
+}
